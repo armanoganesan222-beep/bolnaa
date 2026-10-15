@@ -1,0 +1,1223 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F6F1E7">
+<meta name="description" content="wapChat — социальная сеть для фото и мыслей">
+<title>Волна</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23B5573A'/%3E%3Ctext x='16' y='23' font-size='20' font-weight='800' text-anchor='middle' fill='%23FBF7EF' font-family='sans-serif'%3Ew%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ==========================================================================
+   wapChat — дизайн
+   Тёплая бежево-белая база, тёмно-коричневый текст и один терракотовый акцент.
+   Карточки без теней: глубину задают тонкие границы.
+   ========================================================================== */
+:root {
+--bg: #F5EFE3;
+--surface: #FFF9EF;
+--surface-2: #E9DDCA;
+--ink: #451020;
+--ink-2: #702039;
+--muted: #9B8B7D;
+--line: #E1D3BF;
+--accent: #C00035;
+--accent-soft: #F0D9D8;
+--radius-lg: 22px;
+--radius-md: 14px;
+--ease: cubic-bezier(.2, .7, .2, 1);
+--font-display: "Unbounded", "Manrope", system-ui, sans-serif;
+--font-body: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+color-scheme: light;
+}
+
+
+
+/* ---------- база ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 15px/1.5 var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+button, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+img { display: block; max-width: 100%; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+.icon {
+  width: 22px; height: 22px; flex: none;
+  fill: none; stroke: currentColor; stroke-width: 1.8;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+
+/* ---------- бренд ---------- */
+.brand {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--font-display); font-weight: 800; letter-spacing: .01em;
+}
+.brand-mark {
+  display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 10px;
+  background: var(--accent); color: var(--surface);
+  font-family: var(--font-display); font-size: 19px; font-weight: 800; line-height: 1;
+}
+.brand-word { font-size: 18px; }
+
+/* ---------- каркас ---------- */
+.shell { display: flex; min-height: 100vh; }
+.sidebar {
+  position: sticky; top: 0; height: 100vh; width: 236px; flex: none;
+  display: flex; flex-direction: column; gap: 36px;
+  padding: 30px 18px; border-right: 1px solid var(--line);
+}
+.content { flex: 1; min-width: 0; }
+.topbar { display: none; }
+.view { max-width: 600px; margin: 0 auto; padding: 48px 20px 80px; }
+.nav-list {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.nav-link {
+  display: flex; align-items: center; gap: 14px;
+  padding: 11px 14px; border-radius: var(--radius-md);
+  color: var(--muted); font-weight: 600;
+  transition: background .25s var(--ease), color .25s var(--ease);
+}
+.nav-link:hover { color: var(--ink); background: var(--surface-2); }
+.nav-link[aria-current="page"] {
+  color: var(--ink); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line);
+}
+.nav-link[aria-current="page"] .icon { color: var(--accent); }
+.bottom-nav { display: none; }
+
+.page-title {
+  font-family: var(--font-display); font-size: 26px; font-weight: 700;
+  letter-spacing: -.01em; margin: 4px 0 24px;
+}
+
+/* ---------- публикации ---------- */
+.post-list { display: flex; flex-direction: column; gap: 14px; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 18px 18px 12px;
+}
+.post-head { display: flex; align-items: center; gap: 12px; }
+.post-head > a:first-child { flex: none; }
+.post-meta { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.name { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.handle, .time { color: var(--muted); font-size: 13px; }
+.time { font-size: 12px; }
+.text { margin: 14px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.55; }
+.text--thought {
+  font-family: var(--font-display); font-size: 19px; font-weight: 500;
+  line-height: 1.45; letter-spacing: -.01em;
+}
+.photo { margin: 14px 0 0; }
+.photo img {
+  width: 100%; max-height: 72vh; object-fit: cover;
+  border-radius: 16px; background: var(--surface-2);
+}
+.actions { display: flex; gap: 4px; margin: 8px -8px 0; }
+.act {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 10px; border: 0; border-radius: 999px;
+  background: none; color: var(--muted);
+  transition: color .2s, background .2s, transform .2s var(--ease);
+}
+.act:hover { background: var(--surface-2); color: var(--ink); }
+.act:active { transform: scale(.92); }
+.act.is-on { color: var(--accent); }
+.act.is-on .icon { fill: currentColor; animation: pop .4s var(--ease); }
+.count { font-size: 13px; font-weight: 600; }
+@keyframes pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+.icon-btn {
+  display: grid; place-items: center;
+  width: 36px; height: 36px; border: 0; border-radius: 12px;
+  background: none; color: var(--muted); flex: none;
+  transition: color .2s, background .2s;
+}
+.icon-btn:hover { color: var(--accent); background: var(--surface-2); }
+.icon-btn.small { width: 28px; height: 28px; border-radius: 10px; }
+.icon-btn.small .icon { width: 16px; height: 16px; }
+
+/* ---------- аватары ---------- */
+.avatar { border-radius: 50%; object-fit: cover; flex: none; }
+.avatar--letter {
+  display: grid; place-items: center; color: var(--surface);
+  font-family: var(--font-display); font-weight: 700; line-height: 1;
+}
+
+/* ---------- комментарии ---------- */
+.comments { margin-top: 12px; padding-top: 14px; border-top: 1px solid var(--line); }
+.comment-list {
+  list-style: none; margin: 0 0 12px; padding: 0;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.comment { display: flex; gap: 10px; align-items: flex-start; }
+.comment-body { flex: 1; min-width: 0; }
+.comment-body p { margin: 0; overflow-wrap: anywhere; }
+.comment-body b { font-weight: 700; }
+.comment-empty { color: var(--muted); font-size: 14px; margin: 0 0 12px; }
+.comment-form { display: flex; gap: 8px; }
+.comment-form input {
+  flex: 1; min-width: 0; padding: 10px 14px;
+  border-radius: 999px; background: var(--bg);
+}
+
+/* ---------- кнопки ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 44px; padding: 0 20px; border-radius: 999px;
+  border: 1px solid transparent; font-weight: 700;
+  transition: transform .15s var(--ease), background .2s, opacity .2s;
+}
+.btn .icon { width: 18px; height: 18px; }
+.btn:active { transform: scale(.97); }
+.btn:disabled { opacity: .5; cursor: default; }
+.btn-primary { background: var(--ink); color: var(--surface); }
+.btn-primary:hover { opacity: .85; }
+.btn-ghost { background: transparent; border-color: var(--line); }
+.btn-ghost:hover { background: var(--surface-2); }
+.btn-wide { width: 100%; }
+.more { margin: 18px auto 0; display: flex; }
+
+/* ---------- формы ---------- */
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.field-label { font-size: 13px; font-weight: 600; color: var(--ink-2); }
+input[type="text"], input[type="email"], input[type="password"],
+input[type="search"], textarea {
+  width: 100%; padding: 13px 15px;
+  border-radius: var(--radius-md); border: 1px solid var(--line);
+  background: var(--surface); outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+input:focus, textarea:focus {
+  border-color: var(--ink-2);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+textarea { resize: vertical; min-height: 110px; line-height: 1.5; }
+.form-error { color: var(--accent); font-size: 14px; margin: 0 0 12px; }
+.counter { display: block; text-align: right; font-size: 12px; color: var(--muted); margin-top: -6px; }
+
+/* ---------- вход и регистрация ---------- */
+.auth { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+.auth-card { width: 100%; max-width: 380px; }
+.auth-brand .brand-mark { width: 64px; height: 64px; border-radius: 20px; font-size: 38px; }
+.auth-brand .brand-word { font-size: 30px; }
+.auth-title {
+  font-family: var(--font-display); font-size: 22px; font-weight: 700;
+  margin: 36px 0 22px;
+}
+.auth-switch { margin: 18px 0 0; text-align: center; color: var(--muted); font-size: 14px; }
+.auth-switch button {
+  border: 0; background: none; padding: 0; color: var(--ink); font-weight: 700;
+  text-decoration: underline; text-underline-offset: 3px;
+}
+
+/* ---------- поиск ---------- */
+.search-box { position: relative; margin-bottom: 18px; }
+.search-box .icon {
+  position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--muted);
+}
+.search-box input { padding-left: 46px; border-radius: 999px; }
+.user-list { display: flex; flex-direction: column; gap: 4px; }
+.user-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px; border-radius: var(--radius-md); transition: background .2s;
+}
+.user-row:hover { background: var(--surface); }
+.user-row .name { display: block; }
+
+/* ---------- создание ---------- */
+.segmented {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4px;
+  padding: 4px; margin-bottom: 20px;
+  background: var(--surface-2); border-radius: 999px;
+}
+.seg-btn {
+  padding: 10px; border: 0; border-radius: 999px;
+  background: none; color: var(--ink-2); font-weight: 700;
+}
+.seg-btn[aria-selected="true"] {
+  background: var(--surface); color: var(--ink);
+  box-shadow: 0 1px 3px rgba(60, 45, 25, .10);
+}
+.composer { display: flex; flex-direction: column; gap: 14px; }
+.dropzone {
+  position: relative; display: grid; place-items: center;
+  min-height: 300px; padding: 20px; overflow: hidden;
+  border: 1.5px dashed var(--muted); border-radius: var(--radius-lg);
+  background: var(--surface); text-align: center; cursor: pointer;
+  transition: border-color .2s;
+}
+.dropzone:hover { border-color: var(--accent); }
+.dropzone .placeholder { display: flex; flex-direction: column; gap: 6px; }
+.dropzone small { color: var(--muted); }
+.dropzone img {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+}
+
+/* ---------- профиль ---------- */
+.profile-head {
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+.profile-head .avatar--letter { font-size: 36px; }
+.profile-info { flex: 1; min-width: 220px; }
+.profile-name {
+  font-family: var(--font-display); font-size: 24px; font-weight: 700;
+  margin: 0; letter-spacing: -.01em; overflow-wrap: anywhere;
+}
+.bio { margin: 10px 0 0; color: var(--ink-2); white-space: pre-wrap; overflow-wrap: anywhere; }
+.stats { margin: 10px 0 0; font-size: 13px; color: var(--muted); }
+.profile-actions { display: flex; gap: 8px; width: 100%; }
+.profile-actions .btn { flex: 1; }
+
+/* ---------- диалог редактирования ---------- */
+.sheet {
+  width: min(440px, calc(100vw - 32px));
+  padding: 26px; border: 0; border-radius: 26px;
+  background: var(--surface); color: var(--ink);
+  box-shadow: 0 30px 80px -20px rgba(60, 45, 25, .30);
+}
+.sheet::backdrop { background: rgba(60, 45, 25, .35); backdrop-filter: blur(3px); }
+.sheet[open] { animation: rise .35s var(--ease); }
+.sheet h2 { font-family: var(--font-display); font-size: 20px; margin: 0 0 20px; }
+.avatar-edit { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+.sheet-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px; }
+@keyframes rise {
+  from { opacity: 0; transform: translateY(12px) scale(.98); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ---------- состояния ---------- */
+.spinner {
+  display: block; width: 26px; height: 26px; margin: 48px auto;
+  border: 2px solid var(--line); border-top-color: var(--accent);
+  border-radius: 50%; animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.empty { text-align: center; color: var(--muted); padding: 48px 0; margin: 0; }
+.notice { text-align: center; padding: 48px 0; color: var(--ink-2); }
+.notice p { margin: 0 0 16px; }
+
+/* ---------- уведомления ---------- */
+.toast {
+  position: fixed; left: 50%; bottom: 24px; z-index: 60;
+  max-width: calc(100vw - 32px);
+  padding: 12px 18px; border-radius: 14px;
+  background: var(--ink); color: var(--surface);
+  font-size: 14px; font-weight: 600;
+  opacity: 0; pointer-events: none;
+  transform: translate(-50%, 16px);
+  transition: opacity .25s, transform .3s var(--ease);
+}
+.toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
+.toast.is-error { background: var(--accent); color: var(--surface); }
+
+/* ---------- телефон: нижняя навигация ---------- */
+@media (max-width: 819px) {
+  .sidebar { display: none; }
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 10;
+    padding: calc(env(safe-area-inset-top, 0px) + 14px) 20px 12px;
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    backdrop-filter: blur(12px);
+  }
+  .view { padding: 20px 16px calc(120px + env(safe-area-inset-bottom, 0px)); }
+  .page-title { font-size: 22px; margin-bottom: 18px; }
+  .dropzone { min-height: 240px; }
+  .bottom-nav {
+    display: block; position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+    padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px));
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    backdrop-filter: blur(14px);
+    border-top: 1px solid var(--line);
+  }
+  .bottom-nav .nav-list { flex-direction: row; justify-content: space-around; }
+  .bottom-nav .nav-link {
+    flex-direction: column; gap: 3px; padding: 6px 4px;
+    font-size: 11px; border-radius: 12px; background: none; box-shadow: none;
+  }
+  .bottom-nav .nav-link[aria-current="page"] { background: none; box-shadow: none; }
+  .bottom-nav .nav-link .icon { width: 24px; height: 24px; }
+  .toast { bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+
+/* ==========================================================================
+   wapChat — клиентская часть без фреймворков.
+   Весь DOM строится через el(), пользовательский текст вставляется
+   как textNode, поэтому выполнить код через публикации нельзя.
+   ========================================================================== */
+
+const API = "/api";
+const TOKEN_KEY = "wapchat_token";
+const PAGE_SIZE = 20;
+const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
+const IMAGE_TYPES = "image/jpeg,image/png,image/gif,image/webp";
+
+const state = {
+  token: localStorage.getItem(TOKEN_KEY),
+  user: null,
+};
+let renderSeq = 0;
+let toastTimer = null;
+
+/* ---------- DOM-утилиты ---------- */
+
+const $ = (selector, root = document) => root.querySelector(selector);
+
+function el(tag, props, ...children) {
+  const node = document.createElement(tag);
+  for (const [key, value] of Object.entries(props || {})) {
+    if (value === null || value === undefined || value === false) continue;
+    if (key === "class") node.className = value;
+    else if (key === "value") node.value = value;
+    else if (key.startsWith("on")) node.addEventListener(key.slice(2), value);
+    else node.setAttribute(key, value === true ? "" : String(value));
+  }
+  for (const child of children.flat()) {
+    if (child === null || child === undefined || child === false) continue;
+    node.append(child instanceof Node ? child : document.createTextNode(String(child)));
+  }
+  return node;
+}
+
+const SVG_NS = "http://www.w3.org/2000/svg";
+const ICONS = {
+  home: "M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z",
+  search: "M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM21 21l-4.35-4.35",
+  plus: "M12 5v14M5 12h14",
+  thought: "M4 5h16v11H9l-5 4zM8 9h8M8 12.5h5",
+  user: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21c0-4.4 3.6-7 8-7s8 2.6 8 7",
+  heart: "M12 20.5S3.5 15.6 3.5 9.4A4.4 4.4 0 0 1 12 7.3a4.4 4.4 0 0 1 8.5 2.1c0 6.2-8.5 11.1-8.5 11.1z",
+  comment: "M4 5h16v11H9l-5 4z",
+  trash: "M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3",
+  logout: "M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10",
+};
+
+function icon(name) {
+  const svg = document.createElementNS(SVG_NS, "svg");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("class", "icon");
+  svg.setAttribute("aria-hidden", "true");
+  const path = document.createElementNS(SVG_NS, "path");
+  path.setAttribute("d", ICONS[name]);
+  svg.append(path);
+  return svg;
+}
+
+function hueOf(text = "") {
+  let hash = 0;
+  for (const ch of text) hash = (hash * 31 + ch.codePointAt(0)) % 360;
+  return hash;
+}
+
+function avatar(user, size = 40) {
+  const px = `${size}px`;
+  if (user.avatar_url) {
+    return el("img", {
+      class: "avatar", src: user.avatar_url, alt: "",
+      width: size, height: size, loading: "lazy",
+      style: `width:${px};height:${px}`,
+    });
+  }
+  const letter = (user.display_name || user.username || "?").trim().charAt(0).toUpperCase();
+  return el("span", {
+    class: "avatar avatar--letter", "aria-hidden": "true",
+    style: `width:${px};height:${px};font-size:${Math.round(size * 0.4)}px;background:hsl(${hueOf(user.username)} 35% 55%)`,
+  }, letter);
+}
+
+function timeAgo(sqlDate) {
+  const date = new Date(sqlDate.includes("T") ? sqlDate : sqlDate.replace(" ", "T") + "Z");
+  const seconds = Math.max(0, (Date.now() - date.getTime()) / 1000);
+  if (seconds < 60) return "только что";
+  if (seconds < 3600) return `${Math.floor(seconds / 60)} мин назад`;
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)} ч назад`;
+  if (seconds < 604800) return `${Math.floor(seconds / 86400)} дн назад`;
+  return date.toLocaleDateString("ru-RU", { day: "numeric", month: "short", year: "numeric" });
+}
+
+function countText(n) {
+  return n ? String(n) : "";
+}
+
+function qs(params) {
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(params || {})) {
+    if (value !== null && value !== undefined && value !== "") search.set(key, value);
+  }
+  const text = search.toString();
+  return text ? `?${text}` : "";
+}
+
+function toast(message, isError = false) {
+  const node = $("#toast");
+  node.textContent = message;
+  node.className = `toast is-visible${isError ? " is-error" : ""}`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => node.classList.remove("is-visible"), 2800);
+}
+
+function pageWrap(...children) {
+  return el("section", { class: "page" }, ...children);
+}
+
+function pageTitle(text) {
+  return el("h1", { class: "page-title" }, text);
+}
+
+function loadingBlock() {
+  return el("span", { class: "spinner", role: "status", "aria-label": "Загрузка" });
+}
+
+function errorBlock(message) {
+  const retry = el("button", { class: "btn btn-ghost", type: "button" }, "Попробовать снова");
+  retry.addEventListener("click", () => route());
+  return el("div", { class: "notice" }, el("p", null, message), retry);
+}
+
+function brand() {
+  return el("a", { class: "brand", href: "#/", "aria-label": "Волна, на главную" },
+    el("span", { class: "brand-mark" }, "В"),
+    el("span", { class: "brand-word" }, "Волна"));
+}
+
+
+/* ---------- API-клиент ---------- */
+
+function extractMessage(data, status) {
+  if (data && data.detail) {
+    if (Array.isArray(data.detail)) {
+      return data.detail.map((item) => String(item.msg).replace(/^Value error, /, "")).join(". ");
+    }
+    return String(data.detail);
+  }
+  if (status === 429) return "Слишком много запросов. Подождите немного.";
+  return "Что-то пошло не так";
+}
+
+async function api(path, { method = "GET", body, form, query } = {}) {
+  const headers = {};
+  if (state.token) headers.Authorization = `Bearer ${state.token}`;
+
+  let payload;
+  if (form) {
+    payload = form;
+  } else if (body !== undefined) {
+    headers["Content-Type"] = "application/json";
+    payload = JSON.stringify(body);
+  }
+
+  let response;
+  try {
+    response = await fetch(API + path + qs(query), { method, headers, body: payload });
+  } catch {
+    throw new Error("Нет связи с сервером. Проверьте, что backend запущен.");
+  }
+
+  const data = await response.json().catch(() => null);
+  if (!response.ok) {
+    const error = new Error(extractMessage(data, response.status));
+    error.status = response.status;
+    throw error;
+  }
+  return data;
+}
+
+/* ---------- сессия ---------- */
+
+function setSession(token, user) {
+  state.token = token;
+  state.user = user;
+  localStorage.setItem(TOKEN_KEY, token);
+}
+
+function clearSession() {
+  state.token = null;
+  state.user = null;
+  localStorage.removeItem(TOKEN_KEY);
+}
+
+async function logout() {
+  api("/auth/logout", { method: "POST" }).catch(() => {});
+  clearSession();
+  await route();
+}
+
+/* ---------- маршрутизация ---------- */
+
+const NAV = [
+  { name: "feed", label: "Главная", icon: "home", href: () => "#/" },
+  { name: "search", label: "Поиск", icon: "search", href: () => "#/search" },
+  { name: "create", label: "Создать", icon: "plus", href: () => "#/create" },
+  { name: "thoughts", label: "Мысли", icon: "thought", href: () => "#/thoughts" },
+  { name: "profile", label: "Профиль", icon: "user", href: () => `#/u/${state.user.username}` },
+];
+
+function parseRoute() {
+  let parts = [];
+  try {
+    parts = location.hash.replace(/^#\/?/, "").split("/").filter(Boolean).map(decodeURIComponent);
+  } catch {
+    parts = [];
+  }
+  const [head, arg] = parts;
+  if (head === "u" && arg) return { name: "profile", username: arg.toLowerCase() };
+  if (head === "thoughts" || head === "search" || head === "create") return { name: head };
+  return { name: "feed" };
+}
+
+function navigate(hash) {
+  if (location.hash === hash) route();
+  else location.hash = hash;
+}
+
+function navList() {
+  return el("ul", { class: "nav-list" }, NAV.map((item) =>
+    el("li", null,
+      el("a", { class: "nav-link", href: item.href(), "data-nav": item.name },
+        icon(item.icon),
+        el("span", { class: "nav-label" }, item.label)))
+  ));
+}
+
+function setActiveNav(current) {
+  document.querySelectorAll(".nav-link").forEach((link) => {
+    if (link.dataset.nav === current.name) link.setAttribute("aria-current", "page");
+    else link.removeAttribute("aria-current");
+  });
+}
+
+function renderShell() {
+  $("#app").replaceChildren(
+    el("div", { class: "shell" },
+      el("aside", { class: "sidebar" }, brand(), navList()),
+      el("div", { class: "content" },
+        el("header", { class: "topbar" }, brand()),
+        el("main", { id: "view", class: "view" })),
+      el("nav", { class: "bottom-nav", "aria-label": "Основная навигация" }, navList())
+    )
+  );
+}
+
+async function route() {
+  if (!state.user) {
+    showAuth("login");
+    return;
+  }
+  if (!$("#view")) renderShell();
+
+  const current = parseRoute();
+  setActiveNav(current);
+  const view = $("#view");
+  const token = ++renderSeq;
+  view.replaceChildren(loadingBlock());
+
+  let node;
+  try {
+    node = await VIEWS[current.name](current);
+  } catch (err) {
+    if (!state.user) {
+      showAuth("login");
+      return;
+    }
+    node = errorBlock(err.message);
+  }
+  if (token !== renderSeq) return;
+  view.replaceChildren(node);
+  window.scrollTo({ top: 0 });
+}
+
+/* ---------- вход и регистрация ---------- */
+
+function field(label, name, type = "text", attrs = {}) {
+  return el("label", { class: "field" },
+    el("span", { class: "field-label" }, label),
+    el("input", { name, type, required: true, ...attrs }));
+}
+
+function showAuth(mode = "login") {
+  const isLogin = mode === "login";
+  const error = el("p", { class: "form-error", role: "alert" });
+  error.hidden = true;
+  const submit = el("button", { class: "btn btn-primary btn-wide", type: "submit" },
+    isLogin ? "Войти" : "Создать аккаунт");
+
+  const fields = isLogin
+    ? [
+        field("Логин или email", "login", "text", { autocomplete: "username", autocapitalize: "off" }),
+        field("Пароль", "password", "password", { autocomplete: "current-password" }),
+      ]
+    : [
+        field("Логин", "username", "text", {
+          autocomplete: "username", autocapitalize: "off",
+          pattern: "[A-Za-z0-9_]{3,30}",
+          title: "Латинские буквы, цифры и _ (от 3 до 30 символов)",
+        }),
+        field("Email", "email", "email", { autocomplete: "email", autocapitalize: "off" }),
+        field("Пароль, от 8 символов", "password", "password", {
+          autocomplete: "new-password", minlength: "8",
+        }),
+      ];
+
+  const form = el("form", { class: "auth-form" }, ...fields, error, submit);
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    error.hidden = true;
+    submit.disabled = true;
+    const body = Object.fromEntries(new FormData(form));
+    try {
+      const result = await api(isLogin ? "/auth/login" : "/auth/register", { method: "POST", body });
+      setSession(result.token, result.user);
+      history.replaceState(null, "", "#/");
+      await route();
+    } catch (err) {
+      error.textContent = err.message;
+      error.hidden = false;
+    } finally {
+      submit.disabled = false;
+    }
+  });
+
+  const switchButton = el("button", { type: "button" }, isLogin ? "Регистрация" : "Войти");
+  switchButton.addEventListener("click", () => showAuth(isLogin ? "register" : "login"));
+
+  $("#app").replaceChildren(
+    el("main", { class: "auth" },
+      el("div", { class: "auth-card" },
+        el("div", { class: "auth-brand" }, brand()),
+        el("h1", { class: "auth-title" }, isLogin ? "С возвращением" : "Создайте аккаунт"),
+        form,
+        el("p", { class: "auth-switch" },
+          isLogin ? "Нет аккаунта? " : "Уже есть аккаунт? ",
+          switchButton)))
+  );
+}
+
+/* ---------- лента с постраничной загрузкой ---------- */
+
+function paginatedPosts(endpoint, query, emptyText) {
+  const list = el("div", { class: "post-list" });
+  const empty = el("p", { class: "empty" }, emptyText);
+  const more = el("button", { class: "btn btn-ghost more", type: "button" }, "Показать ещё");
+  empty.hidden = true;
+  more.hidden = true;
+
+  let lastId = null;
+  let loading = false;
+
+  const refreshEmpty = () => {
+    empty.hidden = list.children.length > 0;
+  };
+
+  async function load() {
+    if (loading) return;
+    loading = true;
+    more.disabled = true;
+    try {
+      const items = await api(endpoint, { query: { ...query, before: lastId } });
+      for (const post of items) list.append(postCard(post, refreshEmpty));
+      if (items.length) lastId = items[items.length - 1].id;
+      more.hidden = items.length < PAGE_SIZE;
+      refreshEmpty();
+    } catch (err) {
+      toast(err.message, true);
+    } finally {
+      loading = false;
+      more.disabled = false;
+    }
+  }
+
+  more.addEventListener("click", load);
+  load();
+  return el("div", null, list, empty, more);
+}
+
+/* ---------- карточка публикации ---------- */
+
+function postCard(post, onRemoved) {
+  const card = el("article", { class: `card post post--${post.kind}` });
+
+  const deleteButton = post.is_mine
+    ? el("button", { class: "icon-btn", type: "button", "aria-label": "Удалить публикацию", title: "Удалить" }, icon("trash"))
+    : null;
+  if (deleteButton) {
+    deleteButton.addEventListener("click", async () => {
+      if (!confirm("Удалить публикацию?")) return;
+      try {
+        await api(`/posts/${post.id}`, { method: "DELETE" });
+        card.remove();
+        onRemoved();
+        toast("Публикация удалена");
+      } catch (err) {
+        toast(err.message, true);
+      }
+    });
+  }
+
+  const head = el("header", { class: "post-head" },
+    el("a", { href: `#/u/${post.author.username}`, "aria-label": post.author.display_name },
+      avatar(post.author, 42)),
+    el("div", { class: "post-meta" },
+      el("a", { class: "name", href: `#/u/${post.author.username}` }, post.author.display_name),
+      el("span", { class: "handle" }, `@${post.author.username}`),
+      el("time", { class: "time" }, timeAgo(post.created_at))),
+    deleteButton);
+
+  const body = [];
+  if (post.kind === "photo" && post.image_url) {
+    body.push(el("figure", { class: "photo" },
+      el("img", { src: post.image_url, alt: post.text ? post.text.slice(0, 120) : "Фото", loading: "lazy" })));
+  }
+  if (post.text) {
+    body.push(el("p", { class: post.kind === "thought" ? "text text--thought" : "text" }, post.text));
+  }
+
+  const likeCount = el("span", { class: "count" }, countText(post.likes_count));
+  const likeButton = el("button", {
+    class: `act${post.liked_by_me ? " is-on" : ""}`, type: "button",
+    "aria-label": "Нравится", "aria-pressed": post.liked_by_me ? "true" : "false",
+  }, icon("heart"), likeCount);
+
+  likeButton.addEventListener("click", async () => {
+    likeButton.disabled = true;
+    try {
+      const result = await api(`/posts/${post.id}/like`, { method: "POST" });
+      likeButton.classList.toggle("is-on", result.liked);
+      likeButton.setAttribute("aria-pressed", String(result.liked));
+      likeCount.textContent = countText(result.likes_count);
+    } catch (err) {
+      toast(err.message, true);
+    } finally {
+      likeButton.disabled = false;
+    }
+  });
+
+  const commentCount = el("span", { class: "count" }, countText(post.comments_count));
+  const panel = commentsPanel(post, (delta) => {
+    post.comments_count += delta;
+    commentCount.textContent = countText(post.comments_count);
+  });
+  panel.node.hidden = true;
+
+  const commentButton = el("button", {
+    class: "act", type: "button", "aria-label": "Комментарии", "aria-expanded": "false",
+  }, icon("comment"), commentCount);
+
+  commentButton.addEventListener("click", () => {
+    const opening = panel.node.hidden;
+    panel.node.hidden = !opening;
+    commentButton.setAttribute("aria-expanded", String(opening));
+    if (opening) panel.load();
+  });
+
+  card.append(
+    head,
+    ...body,
+    el("div", { class: "actions" }, likeButton, commentButton),
+    panel.node
+  );
+  return card;
+}
+
+/* ---------- комментарии ---------- */
+
+function commentsPanel(post, onCountChange) {
+  const noComments = el("p", { class: "comment-empty" }, "Комментариев пока нет");
+  noComments.hidden = true;
+  const list = el("ul", { class: "comment-list" });
+  const input = el("input", {
+    type: "text", maxlength: "500", placeholder: "Написать комментарий",
+    "aria-label": "Текст комментария", autocomplete: "off",
+  });
+  const send = el("button", { class: "btn btn-primary", type: "submit" }, "Отправить");
+  const form = el("form", { class: "comment-form" }, input, send);
+  const node = el("div", { class: "comments" }, noComments, list, form);
+
+  let loaded = false;
+
+  function commentItem(comment) {
+    const canDelete = comment.is_mine || post.is_mine;
+    const deleteButton = canDelete
+      ? el("button", { class: "icon-btn small", type: "button", "aria-label": "Удалить комментарий" }, icon("trash"))
+      : null;
+    const item = el("li", { class: "comment" },
+      el("a", { href: `#/u/${comment.author.username}`, "aria-label": comment.author.display_name },
+        avatar(comment.author, 30)),
+      el("div", { class: "comment-body" },
+        el("p", null, el("b", null, comment.author.display_name), " ", comment.text),
+        el("time", { class: "time" }, timeAgo(comment.created_at))),
+      deleteButton);
+    if (deleteButton) {
+      deleteButton.addEventListener("click", async () => {
+        if (!confirm("Удалить комментарий?")) return;
+        try {
+          await api(`/comments/${comment.id}`, { method: "DELETE" });
+          item.remove();
+          onCountChange(-1);
+          noComments.hidden = list.children.length > 0;
+        } catch (err) {
+          toast(err.message, true);
+        }
+      });
+    }
+    return item;
+  }
+
+  async function load() {
+    if (loaded) return;
+    try {
+      const items = await api(`/posts/${post.id}/comments`);
+      loaded = true;
+      list.replaceChildren(...items.map(commentItem));
+      noComments.hidden = items.length > 0;
+    } catch (err) {
+      toast(err.message, true);
+    }
+  }
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const text = input.value.trim();
+    if (!text) return;
+    send.disabled = true;
+    try {
+      const comment = await api(`/posts/${post.id}/comments`, { method: "POST", body: { text } });
+      list.append(commentItem(comment));
+      input.value = "";
+      noComments.hidden = true;
+      onCountChange(1);
+    } catch (err) {
+      toast(err.message, true);
+    } finally {
+      send.disabled = false;
+    }
+  });
+
+  return { node, load };
+}
+
+/* ---------- экраны ---------- */
+
+async function viewFeed() {
+  return pageWrap(
+    pageTitle("Лента"),
+    paginatedPosts("/posts", {}, "Публикаций пока нет. Добавьте первое фото или мысль."));
+}
+
+async function viewThoughts() {
+  return pageWrap(
+    pageTitle("Мысли"),
+    paginatedPosts("/posts", { kind: "thought" }, "Мыслей пока нет. Напишите первую."));
+}
+
+function viewSearch() {
+  const input = el("input", {
+    type: "search", placeholder: "Имя или @username",
+    "aria-label": "Поиск пользователей", autocomplete: "off", autocapitalize: "off",
+  });
+  const results = el("div", { class: "user-list", "aria-live": "polite" });
+  let timer = null;
+
+  async function runSearch(query) {
+    if (!query) {
+      results.replaceChildren(el("p", { class: "empty" }, "Введите имя или логин"));
+      return;
+    }
+    try {
+      const users = await api("/users/search", { query: { q: query } });
+      results.replaceChildren(...(users.length
+        ? users.map((user) => el("a", { class: "user-row", href: `#/u/${user.username}` },
+            avatar(user, 44),
+            el("div", null,
+              el("span", { class: "name" }, user.display_name || user.username),
+              el("span", { class: "handle" }, `@${user.username}`))))
+        : [el("p", { class: "empty" }, "Никого не нашли")]));
+    } catch (err) {
+      toast(err.message, true);
+    }
+  }
+
+  input.addEventListener("input", () => {
+    clearTimeout(timer);
+    timer = setTimeout(() => runSearch(input.value.trim()), 250);
+  });
+
+  return pageWrap(
+    pageTitle("Поиск"),
+    el("div", { class: "search-box" }, icon("search"), input),
+    results);
+}
+
+function counterFor(textarea) {
+  const counter = el("span", { class: "counter" }, `0/${textarea.maxLength}`);
+  textarea.addEventListener("input", () => {
+    counter.textContent = `${textarea.value.length}/${textarea.maxLength}`;
+  });
+  return counter;
+}
+
+async function publish(formData, button) {
+  button.disabled = true;
+  try {
+    const post = await api("/posts", { method: "POST", form: formData });
+    toast("Опубликовано");
+    navigate(post.kind === "thought" ? "#/thoughts" : "#/");
+  } catch (err) {
+    toast(err.message, true);
+  } finally {
+    button.disabled = false;
+  }
+}
+
+function photoComposer() {
+  let file = null;
+  const input = el("input", { type: "file", accept: IMAGE_TYPES, class: "sr-only" });
+  const preview = el("img", { alt: "Предпросмотр фото" });
+  preview.hidden = true;
+  const placeholder = el("span", { class: "placeholder" },
+    el("strong", null, "Выберите фото"),
+    el("small", null, "JPG, PNG, GIF или WEBP, до 8 МБ"));
+  const drop = el("label", { class: "dropzone" }, input, placeholder, preview);
+
+  input.addEventListener("change", () => {
+    const chosen = input.files[0];
+    if (!chosen) return;
+    if (chosen.size > MAX_IMAGE_BYTES) {
+      toast("Файл больше 8 МБ", true);
+      input.value = "";
+      return;
+    }
+    file = chosen;
+    preview.src = URL.createObjectURL(chosen);
+    preview.hidden = false;
+    placeholder.hidden = true;
+  });
+
+  const caption = el("textarea", {
+    maxlength: "1000", rows: "3", placeholder: "Подпись (необязательно)", "aria-label": "Подпись",
+  });
+  const submit = el("button", { class: "btn btn-primary btn-wide", type: "submit" }, "Опубликовать");
+  const form = el("form", { class: "composer" }, drop, caption, counterFor(caption), submit);
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (!file) {
+      toast("Сначала выберите фото", true);
+      return;
+    }
+    const data = new FormData();
+    data.append("kind", "photo");
+    data.append("text", caption.value.trim());
+    data.append("image", file);
+    publish(data, submit);
+  });
+  return form;
+}
+
+function thoughtComposer() {
+  const textarea = el("textarea", {
+    maxlength: "1000", rows: "7", placeholder: "О чём вы думаете?", "aria-label": "Текст мысли",
+  });
+  const submit = el("button", { class: "btn btn-primary btn-wide", type: "submit" }, "Опубликовать мысль");
+  const form = el("form", { class: "composer" }, textarea, counterFor(textarea), submit);
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const text = textarea.value.trim();
+    if (!text) {
+      toast("Напишите мысль", true);
+      return;
+    }
+    const data = new FormData();
+    data.append("kind", "thought");
+    data.append("text", text);
+    publish(data, submit);
+  });
+  return form;
+}
+
+function viewCreate() {
+  let kind = "photo";
+  const photoTab = el("button", { class: "seg-btn", type: "button", role: "tab" }, "Фото");
+  const thoughtTab = el("button", { class: "seg-btn", type: "button", role: "tab" }, "Мысль");
+  const slot = el("div");
+
+  function draw() {
+    photoTab.setAttribute("aria-selected", String(kind === "photo"));
+    thoughtTab.setAttribute("aria-selected", String(kind === "thought"));
+    slot.replaceChildren(kind === "photo" ? photoComposer() : thoughtComposer());
+  }
+
+  photoTab.addEventListener("click", () => { kind = "photo"; draw(); });
+  thoughtTab.addEventListener("click", () => { kind = "thought"; draw(); });
+  draw();
+
+  return pageWrap(
+    pageTitle("Создать"),
+    el("div", { class: "segmented", role: "tablist" }, photoTab, thoughtTab),
+    slot);
+}
+
+async function viewProfile({ username }) {
+  const profile = await api(`/users/${encodeURIComponent(username)}`);
+  const isMe = profile.is_me;
+
+  let actions = null;
+  if (isMe) {
+    const editButton = el("button", { class: "btn btn-ghost", type: "button" }, "Редактировать");
+    editButton.addEventListener("click", openEditProfile);
+    const logoutButton = el("button", { class: "btn btn-ghost", type: "button" }, icon("logout"), "Выйти");
+    logoutButton.addEventListener("click", logout);
+    actions = el("div", { class: "profile-actions" }, editButton, logoutButton);
+  }
+
+  return pageWrap(
+    el("header", { class: "profile-head" },
+      avatar(profile, 92),
+      el("div", { class: "profile-info" },
+        el("h1", { class: "profile-name" }, profile.display_name || profile.username),
+        el("p", { class: "handle" }, `@${profile.username}`),
+        profile.bio ? el("p", { class: "bio" }, profile.bio) : null,
+        el("p", { class: "stats" }, `Публикаций: ${profile.posts_count}`)),
+      actions),
+    paginatedPosts(`/users/${encodeURIComponent(profile.username)}/posts`, {},
+      isMe ? "Вы ещё ничего не опубликовали." : "Публикаций пока нет."));
+}
+
+function labeled(text, control) {
+  return el("label", { class: "field" }, el("span", { class: "field-label" }, text), control);
+}
+
+function openEditProfile() {
+  const me = state.user;
+  let newAvatar = null;
+
+  const avatarSlot = el("div", null, avatar(me, 84));
+  const avatarInput = el("input", { type: "file", accept: IMAGE_TYPES, class: "sr-only" });
+  avatarInput.addEventListener("change", () => {
+    const chosen = avatarInput.files[0];
+    if (!chosen) return;
+    if (chosen.size > MAX_IMAGE_BYTES) {
+      toast("Файл больше 8 МБ", true);
+      avatarInput.value = "";
+      return;
+    }
+    newAvatar = chosen;
+    avatarSlot.replaceChildren(el("img", {
+      class: "avatar", src: URL.createObjectURL(chosen), alt: "",
+      width: 84, height: 84, style: "width:84px;height:84px",
+    }));
+  });
+
+  const nameInput = el("input", {
+    type: "text", maxlength: "50", value: me.display_name || "", autocomplete: "off",
+  });
+  const bioInput = el("textarea", { maxlength: "300", rows: "3", value: me.bio || "" });
+  const cancel = el("button", { class: "btn btn-ghost", type: "button" }, "Отмена");
+  const save = el("button", { class: "btn btn-primary", type: "submit" }, "Сохранить");
+
+  const form = el("form", null,
+    el("h2", null, "Редактировать профиль"),
+    el("div", { class: "avatar-edit" },
+      avatarSlot,
+      el("label", { class: "btn btn-ghost" }, "Сменить фото", avatarInput)),
+    labeled("Имя", nameInput),
+    labeled("О себе", bioInput),
+    el("div", { class: "sheet-actions" }, cancel, save));
+
+  const dialog = el("dialog", { class: "sheet" }, form);
+  dialog.addEventListener("close", () => dialog.remove());
+  cancel.addEventListener("click", () => dialog.close());
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    save.disabled = true;
+    try {
+      if (newAvatar) {
+        const data = new FormData();
+        data.append("file", newAvatar);
+        state.user = await api("/users/me/avatar", { method: "POST", form: data });
+      }
+      state.user = await api("/users/me", {
+        method: "PATCH",
+        body: { display_name: nameInput.value, bio: bioInput.value },
+      });
+      dialog.close();
+      toast("Профиль обновлён");
+      await route();
+    } catch (err) {
+      toast(err.message, true);
+    } finally {
+      save.disabled = false;
+    }
+  });
+
+  document.body.append(dialog);
+  dialog.showModal();
+}
+
+const VIEWS = {
+  feed: viewFeed,
+  thoughts: viewThoughts,
+  search: viewSearch,
+  create: viewCreate,
+  profile: viewProfile,
+};
+
+/* ---------- запуск ---------- */
+
+async function boot() {
+  window.addEventListener("hashchange", route);
+  if (state.token) {
+    try {
+      state.user = await api("/auth/me");
+    } catch (err) {
+      if (err.status === 401) clearSession();
+    }
+  }
+  await route();
+}
+
+boot();
+</script>
+</body>
+</html>
